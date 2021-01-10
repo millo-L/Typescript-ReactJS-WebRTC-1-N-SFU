@@ -1,0 +1,17 @@
+{
+    "presets": [
+      "babel-preset"
+    ],
+    "plugins": [
+      "transform-react-jsx-source",
+      [
+        "module-resolver",
+        {
+          "alias": {
+            "~/*": "./src"
+          },
+          "cwd": "babelrc"
+        }
+      ]
+    ]
+  }
