@@ -38,7 +38,8 @@ const isIncluded = (array, id) => {
 const createReceiverPeerConnection = (socketID, socket, roomID) => {
     let pc = new wrtc.RTCPeerConnection(pc_config);
 
-    receiverPCs = {...receiverPCs, [socketID]: pc};
+    if (receiverPCs[socketID]) receiverPCs[socketID] = pc;
+    else receiverPCs = {...receiverPCs, [socketID]: pc};
 
     pc.onicecandidate = (e) => {
         console.log(`socketID: ${socketID}'s receiverPeerConnection icecandidate`);
@@ -66,6 +67,7 @@ const createReceiverPeerConnection = (socketID, socket, roomID) => {
             }];
         }
         console.log(users);
+        socket.to(roomID).broadcast.emit('userEnter', {id: socketID});
     }
 
     pc.close = () => {
@@ -75,8 +77,14 @@ const createReceiverPeerConnection = (socketID, socket, roomID) => {
     return pc;
 }
 
-const createSenderPeerConnection = (socketID) => {
+const createSenderPeerConnection = (receiveSocketID, sendSocketID socket, roomID) => {
+    let pc = wrtc.RTCPeerConnection(pc_config);
 
+    if (senderPCs[receiveSocketID]) {
+        senderPCs[receiveSocketID].filter(user => user.id !== sendSocketID);
+        senderPCs[receiveSocketID].push({})
+    }
+    senderPCs = {...senderPCs, [socketID]}
 }   
 
 const io = socketio.listen(server);
@@ -107,6 +115,14 @@ io.sockets.on('connection', (socket) => {
             console.log(error);
         }
     });
+
+    socket.on('receiverOffer', async(data) => {
+        try {
+
+        } catch (error) {
+            console.log(error);
+        }
+    })
 });
 
 server.listen(8080, () => {

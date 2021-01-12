@@ -51,16 +51,21 @@ const App = () => {
       }
     });
 
+    newSocket.on('userEnter', async(data: {id: string}) => {
+      try {
+        console.log(`socketID(${data.id}) user entered`);
+
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
     /*
     newSocket.on('getReceiverAnswer', (data) => {
 
     });
 
     newSocket.on('getReceiverCandidate', (data) => {
-
-    });
-
-    newSocket.on('userEnter', (data) => {
 
     });
 
@@ -115,7 +120,7 @@ const App = () => {
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
-        console.log('onicecandidate');
+        console.log('sender PC onicecandidate');
         newSocket.emit('senderCandidate', {
           candidate: e.candidate,
           candidateSendID: newSocket.id
@@ -136,6 +141,53 @@ const App = () => {
       }]);
     }
     */
+    pc.close = () => {
+      console.log('pc closed');
+      // alert('GONE')
+    }
+
+    if (localStream){
+      console.log('localstream add');
+      localStream.getTracks().forEach(track => {
+        pc.addTrack(track, localStream);
+      });
+    } else {
+      console.log('no local stream');
+    }
+
+    // return pc
+    return pc;
+  }
+
+  const createReceiverPeerConnection = (socketID: string, newSocket: SocketIOClient.Socket, localStream: MediaStream): RTCPeerConnection => {
+    let pc = new RTCPeerConnection(pc_config);
+
+    // add pc to peerConnections object
+    receivePCs = {...receivePCs, [socketID]: pc};
+
+    pc.onicecandidate = (e) => {
+      if (e.candidate) {
+        console.log('receiver PC onicecandidate');
+        newSocket.emit('receiverCandidate', {
+          candidate: e.candidate,
+          candidateSendID: newSocket.id
+        });
+      }
+    }
+
+    pc.oniceconnectionstatechange = (e) => {
+      console.log(e);
+    }
+    
+    pc.ontrack = (e) => {
+      console.log('ontrack success');
+      setUsers(oldUsers => oldUsers.filter(user => user.id !== socketID));
+      setUsers(oldUsers => [...oldUsers, {
+        id: socketID,
+        stream: e.streams[0]
+      }]);
+    }
+    
     pc.close = () => {
       console.log('pc closed');
       // alert('GONE')
