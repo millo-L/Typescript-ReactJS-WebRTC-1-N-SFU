@@ -44,6 +44,7 @@ const App = () => {
     newSocket.on('getSenderCandidate', async(data: {candidate: RTCIceCandidateInit}) => {
       try {
         console.log('get sender candidate');
+        console.log(data.candidate);
         await sendPC.addIceCandidate(new RTCIceCandidate(data.candidate));
         console.log('candidate add success');
       } catch (error) {
@@ -54,21 +55,36 @@ const App = () => {
     newSocket.on('userEnter', async(data: {id: string}) => {
       try {
         console.log(`socketID(${data.id}) user entered`);
+        let pc = createReceiverPeerConnection(data.id, newSocket);
+        createReceiverOffer(pc, newSocket, data.id);
+      } catch (error) {
+        console.log(error);
+      }
+    });
 
+    newSocket.on('getReceiverAnswer', async(data: {id: string, sdp: RTCSessionDescription}) => {
+      try {
+        console.log(`get socketID(${data.id})'s answer`);
+        let pc: RTCPeerConnection = receivePCs[data.id];
+        await pc.setRemoteDescription(data.sdp);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    newSocket.on('getReceiverCandidate', async(data: {id: string, candidate: RTCIceCandidateInit}) => {
+      try {
+        console.log(data);
+        console.log(`get socketID(${data.id})'s candidate`);
+        let pc: RTCPeerConnection = receivePCs[data.id];
+        await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        console.log(`socketID(${data.id})'s candidate add success`);
       } catch (error) {
         console.log(error);
       }
     });
 
     /*
-    newSocket.on('getReceiverAnswer', (data) => {
-
-    });
-
-    newSocket.on('getReceiverCandidate', (data) => {
-
-    });
-
     newSocket.on('userExit', (data) => {
 
     });
@@ -97,11 +113,28 @@ const App = () => {
     try {
       let sdp = await sendPC.createOffer({offerToReceiveAudio: true, offerToReceiveVideo: true});
       console.log('create sender offer success');
-      sendPC.setLocalDescription(new RTCSessionDescription(sdp));
+      await sendPC.setLocalDescription(new RTCSessionDescription(sdp));
 
       newSocket.emit('senderOffer', {
         sdp,
         offerSendID: newSocket.id,
+        roomID: '1234'
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const createReceiverOffer = async(pc: RTCPeerConnection, newSocket: SocketIOClient.Socket, senderSocketID: string) => {
+    try {
+      let sdp = await pc.createOffer({offerToReceiveAudio: false, offerToReceiveVideo: false});
+      console.log('create receiver offer success');
+      await sendPC.setLocalDescription(new RTCSessionDescription(sdp));
+
+      newSocket.emit('receiverOffer', {
+        sdp,
+        receiverSocketID: newSocket.id,
+        senderSocketID,
         roomID: '1234'
       });
     } catch (error) {
@@ -123,7 +156,7 @@ const App = () => {
         console.log('sender PC onicecandidate');
         newSocket.emit('senderCandidate', {
           candidate: e.candidate,
-          candidateSendID: newSocket.id
+          senderSocketID: newSocket.id
         });
       }
     }
@@ -159,7 +192,7 @@ const App = () => {
     return pc;
   }
 
-  const createReceiverPeerConnection = (socketID: string, newSocket: SocketIOClient.Socket, localStream: MediaStream): RTCPeerConnection => {
+  const createReceiverPeerConnection = (socketID: string, newSocket: SocketIOClient.Socket): RTCPeerConnection => {
     let pc = new RTCPeerConnection(pc_config);
 
     // add pc to peerConnections object
@@ -170,7 +203,8 @@ const App = () => {
         console.log('receiver PC onicecandidate');
         newSocket.emit('receiverCandidate', {
           candidate: e.candidate,
-          candidateSendID: newSocket.id
+          receiverSocketID: newSocket.id,
+          senderSocketID: socketID
         });
       }
     }
@@ -191,15 +225,6 @@ const App = () => {
     pc.close = () => {
       console.log('pc closed');
       // alert('GONE')
-    }
-
-    if (localStream){
-      console.log('localstream add');
-      localStream.getTracks().forEach(track => {
-        pc.addTrack(track, localStream);
-      });
-    } else {
-      console.log('no local stream');
     }
 
     // return pc
