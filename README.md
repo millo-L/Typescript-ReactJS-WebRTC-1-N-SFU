@@ -21,6 +21,7 @@ docker-compose up -d
 You need to install Node.js
 ```sh
 cd Typescript-ReactJS-WebRTC-1-N-SFU
+cd server
 npm install
 node server.js
 cd web
