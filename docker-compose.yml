@@ -1,0 +1,23 @@
+version: '3.5'
+services:
+  server:
+    build: 
+      context: ./server
+    environment:
+      - PORT=8080
+    ports:
+      - 8080:8080
+    networks:
+      - docker-net
+  web:
+    build: 
+      context: ./web
+    stdin_open: true
+    tty: true
+    ports:
+      - 3000:3000
+    networks:
+      - docker-net
+networks:
+  docker-net:
+      
