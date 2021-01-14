@@ -3,7 +3,7 @@
 ## Features
 - 1:N communication (SFU server)
 - React with Typescript
-- Node.js as a SFU server
+- Node.js as a MediaServer(SFU server)
 - Docker
 
 ## How to start
