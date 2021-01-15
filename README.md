@@ -74,7 +74,7 @@ npm start
 
 ### Signaling Server (P2P, Mesh)
 - There was a slight delay as the client increased, but the video did not stop.
-- The CPU sage of the Signaling Server was kept at 0.1%.
+- The CPU usage of the Signaling Server was kept at 0.1%.
 - As the number of clients increased, the CPU usage of the client increased significantly.
 
 ---
