@@ -77,6 +77,8 @@ npm start
 - The CPU sage of the Signaling Server was kept at 0.1%.
 - As the number of clients increased, the CPU usage of the client increased significantly.
 
+---
+
 ### Previous Upload was... 
 - 1:1 (peer to peer) WebRTC https://github.com/Seung3837/Typescript-ReactJS-WebRTC-1-1-P2P
 - 1:N (peer to peer) WebRTC https://github.com/Seung3837/Typescript-ReactJS-WebRTC-1-N-P2P
