@@ -70,7 +70,7 @@ npm start
 - The SFU server has lost its real-time performance since it had 6 clients.
 - Some images were stopped when there were more than 7 clients.
 - SFU Server had significantly higher CPU usage than Signaling Server.
-- Client-side CPU usage decreased by approximately half when using SFU servers.
+- Client-side CPU usage decreased by approximately half when using SFU Server.
 
 ### Signaling Server (P2P, Mesh)
 - There was a slight delay as the client increased, but the video did not stop.
