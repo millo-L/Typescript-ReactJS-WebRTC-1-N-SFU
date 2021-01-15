@@ -69,10 +69,6 @@ const createReceiverPeerConnection = (socketID, socket, roomID) => {
         socket.broadcast.to(roomID).emit('userEnter', {id: socketID});
     }
 
-    pc.close = () => {
-        console.log(`socketID: ${socketID}'s receiverPeerConnection closed`);
-    }
-
     return pc;
 }
 
@@ -97,10 +93,6 @@ const createSenderPeerConnection = (receiverSocketID, senderSocketID, socket, ro
         //console.log(e);
     }
 
-    pc.close = () => {
-        console.log(`socketID: ${socketID}'s receiverPeerConnection closed`);
-    }
-
     const sendUser = users[roomID].filter(user => user.id === senderSocketID);
     sendUser[0].stream.getTracks().forEach(track => {
         pc.addTrack(track, sendUser[0].stream);
@@ -108,6 +100,30 @@ const createSenderPeerConnection = (receiverSocketID, senderSocketID, socket, ro
 
     return pc;
 }   
+
+const closeRecevierPC = (socketID) => {
+    if (!receiverPCs[socketID]) return;
+
+    receiverPCs[socketID].close();
+    delete receiverPCs[socketID];
+}
+
+const closeSenderPCs = (socketID) => {
+    if (!senderPCs[socketID]) return;
+
+    let len = senderPCs[socketID].length;
+    for (let i = 0; i < len; i++) {
+        senderPCs[socketID][i].pc.close();
+        let _senderPCs = senderPCs[senderPCs[socketID][i].id];
+        let senderPC = _senderPCs.filter(sPC => sPC.id === socketID);
+        if (senderPC[0]) {
+            senderPC[0].pc.close();
+            senderPCs[senderPCs[socketID][i].id] = _senderPCs.filter(sPC => sPC.id !== socketID);
+        }
+    }
+
+    delete senderPCs[socketID];
+}
 
 const io = socketio.listen(server);
 
@@ -185,9 +201,9 @@ io.sockets.on('connection', (socket) => {
                 }
             }
 
-            delete receiverPCs[socket.id];
-            delete senderPCs[socket.id];
-
+            closeRecevierPC(socket.id);
+            closeSenderPCs(socket.id);
+            
             socket.broadcast.to(roomID).emit('userExit', {id: socket.id});
         } catch (error) {
             console.log(error);

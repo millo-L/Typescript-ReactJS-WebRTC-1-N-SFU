@@ -43,6 +43,7 @@ const App = () => {
     });
 
     newSocket.on('userExit', (data: {id: string}) => {
+      receivePCs[data.id].close();
       delete receivePCs[data.id];
       setUsers(users => users.filter(user => user.id !== data.id));
     });
@@ -178,11 +179,6 @@ const App = () => {
       console.log(e);
     }
 
-    pc.close = () => {
-      console.log('pc closed');
-      // alert('GONE')
-    }
-
     if (localStream){
       console.log('localstream add');
       localStream.getTracks().forEach(track => {
@@ -224,11 +220,6 @@ const App = () => {
         id: socketID,
         stream: e.streams[0]
       }]);
-    }
-    
-    pc.close = () => {
-      console.log('pc closed');
-      // alert('GONE')
     }
 
     // return pc
