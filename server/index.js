@@ -101,6 +101,31 @@ const createSenderPeerConnection = (receiverSocketID, senderSocketID, socket, ro
     return pc;
 }   
 
+const getOtherUsersInRoom = (socketID, roomID) => {
+    let allUsers = [];
+
+    if (!users[roomID]) return allUsers;
+    
+    let len = users[roomID].length;
+    for (let i = 0; i < len; i++) {
+        if (users[roomID][i].id === socketID) continue;
+        allUsers.push({id: users[roomID][i].id});
+    }
+
+    return allUsers;
+}
+
+const deleteUser = (socketID, roomID) => {
+    let roomUsers = users[roomID];
+    if (!roomUsers) return;
+    roomUsers = roomUsers.filter(user => user.id !== socketID);
+    users[roomID] = roomUsers;
+    if (roomUsers.length === 0) {
+        delete users[roomID];
+    }
+    delete socketToRoom[socketID];
+}
+
 const closeRecevierPC = (socketID) => {
     if (!receiverPCs[socketID]) return;
 
@@ -129,16 +154,9 @@ const io = socketio.listen(server);
 
 io.sockets.on('connection', (socket) => {
 
-    socket.on('joinRoom', async(data) => {
+    socket.on('joinRoom', (data) => {
         try {
-            let allUsers = [];
-            if (users[data.roomID]) {
-                let len = users[data.roomID].length;
-                for (let i = 0; i < len; i++) {
-                    if (users[data.roomID][i].id === data.id) continue;
-                    allUsers.push({id: users[data.roomID][i].id});
-                }
-            }
+            let allUsers = getOtherUsersInRoom(data.id, data.roomID);
             io.to(data.id).emit('allUsers', { users: allUsers });
         } catch (error) {
             console.log(error);
@@ -192,15 +210,8 @@ io.sockets.on('connection', (socket) => {
     socket.on('disconnect', () => {
         try {
             let roomID = socketToRoom[socket.id];
-            let roomUsers = users[roomID];
-            if (roomUsers) {
-                roomUsers = roomUsers.filter(user => user.id !== socket.id);
-                users[roomID] = roomUsers;
-                if (roomUsers.length === 0) {
-                    delete users[roomID];
-                }
-            }
-
+            
+            deleteUser(socket.id, roomID);
             closeRecevierPC(socket.id);
             closeSenderPCs(socket.id);
             
