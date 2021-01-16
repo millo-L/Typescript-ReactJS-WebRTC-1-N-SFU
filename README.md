@@ -38,6 +38,7 @@ npm start
 |CPU|AMD Ryzen 5 3600 6-Core Processor 3.59GHz|
 |RAM|32GB|
 |GPU|NVIDIA GeForce RTX 2060 SUPER|
+|OS|Windows 10 Pro|
 
 ### 2. Settings
 - all clients and server were in same devices
@@ -65,7 +66,7 @@ npm start
 |7|0.1%|48%|
 |8|0.1%|50%|
 
-### 3. Result
+### 3. Results
 ### SFU Server (Media Server)
 - The SFU server has lost its real-time performance since it had 6 clients.
 - Some images were stopped when there were more than 7 clients.
