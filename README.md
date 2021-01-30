@@ -85,5 +85,5 @@ npm start
 - 1:N (peer to peer) WebRTC https://github.com/Seung3837/Typescript-ReactJS-WebRTC-1-N-P2P
 
 ### More Details...
-- https://velog.io/@seung3837/WebRTC-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B01N-SFU
+- https://surprisecomputer.tistory.com/14
 
