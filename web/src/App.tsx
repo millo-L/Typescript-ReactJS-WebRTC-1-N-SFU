@@ -12,8 +12,8 @@ const App = () => {
   let localVideoRef = useRef<HTMLVideoElement>(null);
 
   let sendPC: RTCPeerConnection;
-  let receivePCs: any;
-  
+  let receivePCs: { [socketId: string]: RTCPeerConnection };
+
   const pc_config = {
     "iceServers": [
       // {
@@ -22,7 +22,7 @@ const App = () => {
       //   'username': '[USERNAME]'
       // },
       {
-        urls : 'stun:stun.l.google.com:19302'
+        urls: 'stun:stun.l.google.com:19302'
       }
     ]
   }
@@ -31,24 +31,24 @@ const App = () => {
     let newSocket = io.connect('http://localhost:8080');
     let localStream: MediaStream;
 
-    newSocket.on('userEnter', (data: {id: string}) => {
+    newSocket.on('userEnter', (data: { id: string }) => {
       createReceivePC(data.id, newSocket);
     });
 
-    newSocket.on('allUsers', (data: {users: Array<{id: string}>}) => {
+    newSocket.on('allUsers', (data: { users: Array<{ id: string }> }) => {
       let len = data.users.length;
       for (let i = 0; i < len; i++) {
         createReceivePC(data.users[i].id, newSocket);
       }
     });
 
-    newSocket.on('userExit', (data: {id: string}) => {
+    newSocket.on('userExit', (data: { id: string }) => {
       receivePCs[data.id].close();
       delete receivePCs[data.id];
       setUsers(users => users.filter(user => user.id !== data.id));
     });
 
-    newSocket.on('getSenderAnswer', async (data: {sdp: RTCSessionDescription}) => {
+    newSocket.on('getSenderAnswer', async (data: { sdp: RTCSessionDescription }) => {
       try {
         console.log('get sender answer');
         console.log(data.sdp);
@@ -58,7 +58,7 @@ const App = () => {
       }
     });
 
-    newSocket.on('getSenderCandidate', async(data: {candidate: RTCIceCandidateInit}) => {
+    newSocket.on('getSenderCandidate', async (data: { candidate: RTCIceCandidateInit }) => {
       try {
         console.log('get sender candidate');
         if (!data.candidate) return;
@@ -69,7 +69,7 @@ const App = () => {
       }
     });
 
-    newSocket.on('getReceiverAnswer', async(data: {id: string, sdp: RTCSessionDescription}) => {
+    newSocket.on('getReceiverAnswer', async (data: { id: string, sdp: RTCSessionDescription }) => {
       try {
         console.log(`get socketID(${data.id})'s answer`);
         let pc: RTCPeerConnection = receivePCs[data.id];
@@ -80,7 +80,7 @@ const App = () => {
       }
     });
 
-    newSocket.on('getReceiverCandidate', async(data: {id: string, candidate: RTCIceCandidateInit}) => {
+    newSocket.on('getReceiverCandidate', async (data: { id: string, candidate: RTCIceCandidateInit }) => {
       try {
         console.log(data);
         console.log(`get socketID(${data.id})'s candidate`);
@@ -108,7 +108,7 @@ const App = () => {
 
       sendPC = createSenderPeerConnection(newSocket, localStream);
       createSenderOffer(newSocket);
-      
+
       newSocket.emit('joinRoom', {
         id: newSocket.id,
         roomID: '1234'
@@ -128,9 +128,9 @@ const App = () => {
     }
   }
 
-  const createSenderOffer = async(newSocket: SocketIOClient.Socket) => {
+  const createSenderOffer = async (newSocket: SocketIOClient.Socket) => {
     try {
-      let sdp = await sendPC.createOffer({offerToReceiveAudio: false, offerToReceiveVideo: false});
+      let sdp = await sendPC.createOffer({ offerToReceiveAudio: false, offerToReceiveVideo: false });
       console.log('create sender offer success');
       await sendPC.setLocalDescription(new RTCSessionDescription(sdp));
 
@@ -144,9 +144,9 @@ const App = () => {
     }
   }
 
-  const createReceiverOffer = async(pc: RTCPeerConnection, newSocket: SocketIOClient.Socket, senderSocketID: string) => {
+  const createReceiverOffer = async (pc: RTCPeerConnection, newSocket: SocketIOClient.Socket, senderSocketID: string) => {
     try {
-      let sdp = await pc.createOffer({offerToReceiveAudio: true, offerToReceiveVideo: true});
+      let sdp = await pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
       console.log('create receiver offer success');
       await pc.setLocalDescription(new RTCSessionDescription(sdp));
 
@@ -179,7 +179,7 @@ const App = () => {
       console.log(e);
     }
 
-    if (localStream){
+    if (localStream) {
       console.log('localstream add');
       localStream.getTracks().forEach(track => {
         pc.addTrack(track, localStream);
@@ -196,7 +196,7 @@ const App = () => {
     let pc = new RTCPeerConnection(pc_config);
 
     // add pc to peerConnections object
-    receivePCs = {...receivePCs, [socketID]: pc};
+    receivePCs = { ...receivePCs, [socketID]: pc };
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
@@ -212,7 +212,7 @@ const App = () => {
     pc.oniceconnectionstatechange = (e) => {
       console.log(e);
     }
-    
+
     pc.ontrack = (e) => {
       console.log('ontrack success');
       setUsers(oldUsers => oldUsers.filter(user => user.id !== socketID));
@@ -228,26 +228,26 @@ const App = () => {
 
   return (
     <div>
-        <video
-          style={{
-            width: 240,
-            height: 240,
-            margin: 5,
-            backgroundColor: 'black'
-          }}
-          muted
-          ref={ localVideoRef }
-          autoPlay>
-        </video>
-        {users.map((user, index) => {
-          return(
-            <Video
-              key={index}
-              stream={user.stream}
-            />
-          );
-        })}
-      </div>
+      <video
+        style={{
+          width: 240,
+          height: 240,
+          margin: 5,
+          backgroundColor: 'black'
+        }}
+        muted
+        ref={localVideoRef}
+        autoPlay>
+      </video>
+      {users.map((user, index) => {
+        return (
+          <Video
+            key={index}
+            stream={user.stream}
+          />
+        );
+      })}
+    </div>
   );
 }
 
