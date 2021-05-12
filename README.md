@@ -24,7 +24,7 @@ You need to install Node.js
 cd Typescript-ReactJS-WebRTC-1-N-SFU
 cd server
 npm install
-node server.js
+node index.js
 cd web
 npm install
 npm start
