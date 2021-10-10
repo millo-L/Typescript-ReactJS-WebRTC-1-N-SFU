@@ -1,0 +1,74 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "react",
+    "react-hooks",
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "extends": [
+    "plugin:react/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:@typescript-eslint/recommended",
+    "airbnb",
+    "airbnb/hooks",
+    "prettier"
+  ],
+  "rules": {
+    "react/jsx-filename-extension": [1, { "extensions": [".tsx", ".ts"] }],
+    "@typescript-eslint/camelcase": 0,
+    "@typescript-eslint/no-explicit-any": 0,
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "camelcase": [0, {"properties": "always"}],
+    "import/extensions": 0,
+    "import/no-extraneous-dependencies": [2, {"devDependencies": true}],
+    "no-param-reassign": [2, { "props": false }],
+    "react/prop-types": 0,
+    "no-shadow": 0,
+    "react-hooks/exhaustive-deps": 1,
+    "no-underscore-dangle": 0,
+    "jsx-a11y/label-has-associated-control": 1,
+    "jsx-a11y/accessible-emoji": 0,
+    "no-nested-ternary": 0,
+    "react/no-array-index-key": 1,
+    "prefer-promise-reject-errors": 1,
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": ["error"],
+    "import/prefer-default-export": 1,
+    "@typescript-eslint/no-empty-function": 1,
+    "global-require": 0,
+    "no-unused-expressions":1,
+    "react/destructuring-assignment":0,
+    "react/require-default-props" :0,
+    "react/no-unused-prop-types":1,
+    "import/no-unresolved": [
+      "error",
+      {"caseSensitive": false}
+    ],
+
+    "react-hooks/rules-of-hooks":1,
+    "@typescript-eslint/no-unused-vars":2,
+    "react/no-children-prop":1,
+    "no-undef": "warn",
+    "no-alert": "off",
+    "no-console": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.tsx"],
+      "rules": {
+        "react/jsx-props-no-spreading": 0
+      }
+    }
+  ],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+  }
+}

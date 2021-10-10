@@ -12,8 +12,8 @@
 ### 1. Docker version
 ```sh
 # server use 8080 port
-# web use 3000 port
-# You can connect to http://localhost:3000
+# web use 8085 port
+# You can connect to http://localhost:8085
 cd Typescript-ReactJS-WebRTC-1-N-SFU
 docker-compose up -d
 ```

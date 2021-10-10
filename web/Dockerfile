@@ -1,4 +1,4 @@
-FROM node:12.18.0
+FROM node:alpine
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
@@ -10,5 +10,8 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 3000
-CMD [ "npm", "start" ]
+RUN npm run build
+RUN npm install -g serve -y
+
+EXPOSE 5000
+CMD [ "npx", "serve", "-s", "build" ]
